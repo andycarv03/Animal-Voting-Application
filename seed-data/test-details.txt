@@ -1,0 +1,15 @@
+generate-votes.sh
+    This is a shell script that uses ApacheBench (ab) to simulate voting traffic to a web service. ApacheBench is a HTTP load testing tool commonly used to test web servers like Apache HTTP Server or APIs.
+
+make-data.py
+    This is a Python script that generates POST request body files used by ApacheBench (ab) for load testing.
+
+How to execute:
+
+run make-data.py
+=> python make-data.py
+
+run script
+=> ./generate-votes.sh 0.0.0.0:5000
+
+0.0.0.0:5000 // is the ip:port where your application is listening.

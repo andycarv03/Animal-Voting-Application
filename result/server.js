@@ -6,7 +6,7 @@ var express = require('express'),
     server = require('http').Server(app),
     io = require('socket.io')(server);
 
-var port = process.env.PORT || 4000;
+var port = process.env.PORT || 5001;
 
 io.on('connection', function (socket) {
 
@@ -18,11 +18,11 @@ io.on('connection', function (socket) {
 });
 
 var pool = new Pool({
-  connectionString: 'postgres://postgres:postgres@db/postgres'
+  connectionString: 'postgres://postgres:postgres@localhost:5432/postgres'
 });
 
 async.retry(
-  {times: 1000, interval: 1000},
+  {times: 10, interval: 10},
   function(callback) {
     pool.connect(function(err, client, done) {
       if (err) {
@@ -49,16 +49,21 @@ function getVotes(client) {
       io.sockets.emit("scores", JSON.stringify(votes));
     }
 
+    //refresh every 1 second
     setTimeout(function() {getVotes(client) }, 1000);
   });
 }
 
 function collectVotesFromResult(result) {
-  var votes = {a: 0, b: 0};
+  var votes = {a: 0, b: 0, c:0, d:0};
 
   result.rows.forEach(function (row) {
     votes[row.vote] = parseInt(row.count);
   });
+  
+  /* for (let vote in votes) {
+    console.log(vote + ": " + votes[vote]);
+  } */
 
   return votes;
 }

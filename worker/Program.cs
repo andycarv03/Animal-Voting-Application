@@ -16,8 +16,8 @@ namespace Worker
         {
             try
             {
-                var pgsql = OpenDbConnection("Server=db;Username=postgres;Password=postgres;");
-                var redisConn = OpenRedisConnection("redis");
+                var pgsql = OpenDbConnection("Host=localhost;Port=5432;Username=postgres;Password=postgres;");
+                var redisConn = OpenRedisConnection("localhost");
                 var redis = redisConn.GetDatabase();
 
                 // Keep alive is not implemented in Npgsql yet. This workaround was recommended:
@@ -34,23 +34,38 @@ namespace Worker
                     // Reconnect redis if down
                     if (redisConn == null || !redisConn.IsConnected) {
                         Console.WriteLine("Reconnecting Redis");
-                        redisConn = OpenRedisConnection("redis");
+                        redisConn = OpenRedisConnection("localhost");
                         redis = redisConn.GetDatabase();
                     }
-                    string json = redis.ListLeftPopAsync("votes").Result;
-                    if (json != null)
+                    
+                    var batch = redis.ListRange("votes", 0, 9); // get first 10 items
+                    if (batch.Length > 0)
                     {
-                        var vote = JsonConvert.DeserializeAnonymousType(json, definition);
-                        Console.WriteLine($"Processing vote for '{vote.vote}' by '{vote.voter_id}'");
-                        // Reconnect DB if down
-                        if (!pgsql.State.Equals(System.Data.ConnectionState.Open))
+                        // Remove the items we just got
+                        redis.ListTrim("votes", batch.Length, -1);
+
+                        foreach (var voteJson in batch)
                         {
-                            Console.WriteLine("Reconnecting DB");
-                            pgsql = OpenDbConnection("Server=db;Username=postgres;Password=postgres;");
-                        }
-                        else
-                        { // Normal +1 vote requested
-                            UpdateVote(pgsql, vote.voter_id, vote.vote);
+                            try
+                            {
+                                var vote = JsonConvert.DeserializeAnonymousType(voteJson, definition);
+                                Console.WriteLine($"Processing vote for '{vote.vote}' by '{vote.voter_id}'");
+                                // Reconnect DB if down
+                                if (!pgsql.State.Equals(System.Data.ConnectionState.Open))
+                                {
+                                    Console.WriteLine("Reconnecting DB");
+                                    pgsql = OpenDbConnection("Host=localhost;Port=5432;Username=postgres;Password=postgres;");
+                                }
+                                else
+                                { 
+                                    // vote update
+                                    UpdateVote(pgsql, vote.voter_id, vote.vote);
+                                }
+                            }
+                            catch(Exception ex)
+                            {
+                                Console.WriteLine($"Error processing vote: {ex.Message}");
+                            }
                         }
                     }
                     else

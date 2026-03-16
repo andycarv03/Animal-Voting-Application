@@ -28,26 +28,26 @@ button i{
 }
 
 button.a{
-  background-color: #1aaaf8;
+  background-color: #2196f3;
 }
 
 button.b{
   background-color: #00cbca;
 }
 
-#tip{
-  text-align: left;
-  color: #c0c9ce;
-  font-size: 14px;
+button.c{
+  background-color: #f3bb21;
 }
 
-#hostname{
-  position: absolute;
-  bottom: 100px;
-  right: 0;
-  left: 0;
-  color: #8f9ea8;
-  font-size: 24px;
+button.d{
+  background-color: #f35221;
+}
+
+/* for : Tip: you can change your vote */
+#tip{
+  text-align: center;
+  color: #c0c9ce;
+  font-size: 14px;
 }
 
 #content-container{
@@ -55,13 +55,16 @@ button.b{
   position: relative;
   margin: 0 auto;
   display: table;
-  padding: 10px;
+  padding: 50px;
   max-width: 940px;
   height: 100%;
+  /* border: 2px solid #5ca200; */
 }
 #content-container-center{
   display: table-cell;
   text-align: center;
+  font-size:18px;
+  /* border: 2px solid #5ca200; */
 }
 
 #content-container-center h3{
@@ -84,34 +87,50 @@ button.b{
 }
 
 #choice button{
-  display: block;
-  height: 80px;
+  display: inline-block;
+  height: 330px;
   width: 330px;
   border: none;
   color: white;
   text-transform: uppercase;
-  font-size:18px;
+  font-size:28px;
   font-weight: 700;
+  font-family: monospace;
   margin-top: 10px;
   margin-bottom: 10px;
-  text-align: left;
-  padding-left: 50px;
+  text-align: center;
 }
 
 #choice button.a:hover{
-  background-color: #1488c6;
+  background-color: #2195f3c4;
 }
 
 #choice button.b:hover{
-  background-color: #00a2a1;
+  background-color: #00cbcbc7;
+}
+
+#choice button.c:hover{
+  background-color: #f3bb21cc;
+}
+
+#choice button.d:hover{
+  background-color: #f35221b4;
 }
 
 #choice button.a:focus{
-  background-color: #1488c6;
+  background-color: #2196f3;
 }
 
 #choice button.b:focus{
-  background-color: #00a2a1;
+  background-color: #00cbca;
+}
+
+#choice button.c:focus{
+  background-color: #f3bb21;
+}
+
+#choice button.d:focus{
+  background-color: #f35221;
 }
 
 #background-stats{

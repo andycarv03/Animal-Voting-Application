@@ -8,7 +8,8 @@ import logging
 
 option_a = os.getenv('OPTION_A', "Cats")
 option_b = os.getenv('OPTION_B', "Dogs")
-hostname = socket.gethostname()
+option_c = os.getenv('OPTION_C', "Ducks")
+option_d = os.getenv('OPTION_D', "Rabbits")
 
 app = Flask(__name__)
 
@@ -18,7 +19,7 @@ app.logger.setLevel(logging.INFO)
 
 def get_redis():
     if not hasattr(g, 'redis'):
-        g.redis = Redis(host="redis", db=0, socket_timeout=5)
+        g.redis = Redis(host="localhost", db=0, socket_timeout=5)
     return g.redis
 
 @app.route("/", methods=['POST','GET'])
@@ -40,7 +41,8 @@ def hello():
         'index.html',
         option_a=option_a,
         option_b=option_b,
-        hostname=hostname,
+        option_c=option_c,
+        option_d=option_d,
         vote=vote,
     ))
     resp.set_cookie('voter_id', voter_id)
@@ -48,4 +50,4 @@ def hello():
 
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=80, debug=True, threaded=True)
+    app.run(host='0.0.0.0', port=5000, debug=True, threaded=True)

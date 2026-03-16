@@ -1,65 +1,81 @@
-# Example Voting App
+# Application to vote for your favorite animals
 
-A simple distributed application running across multiple Docker containers.
+A simple distributed application. Code reference from : https://github.com/dockersamples/example-voting-app
+
+The original application has been tweaked to add new categories of animals and optimised for faster write operations into the database when processing data from the redis.
 
 ## Getting started
 
-Download [Docker Desktop](https://www.docker.com/products/docker-desktop) for Mac or Windows. [Docker Compose](https://docs.docker.com/compose) will be automatically installed. On Linux, make sure you have the latest version of [Compose](https://docs.docker.com/compose/install/).
-
 This solution uses Python, Node.js, .NET, with Redis for messaging and Postgres for storage.
 
-Run in this directory to build and run the app:
+### Components of this application :
 
-```shell
-docker compose up
-```
+vote/ \
+    This is your frontend application enabling users to cast their votes. Developed using Python's framework Flask.
 
-The `vote` app will be running at [http://localhost:8080](http://localhost:8080), and the `results` will be at [http://localhost:8081](http://localhost:8081).
+worker/ \
+    This is the worker thread written in .NET responsible for processing votes and writing into the database
 
-Alternately, if you want to run it on a [Docker Swarm](https://docs.docker.com/engine/swarm/), first make sure you have a swarm. If you don't, run:
+result/ \
+    This is node server running to display votes in real-time.
 
-```shell
-docker swarm init
-```
+seed-data/ \
+    Use this to simulate dummy vote data. Check test-details.txt on how to test.
 
-Once you have your swarm, in this directory run:
+healthchecks/ \
+    These are scripts used to confirm health status of your postgres db and redis services.
 
-```shell
-docker stack deploy --compose-file docker-stack.yml vote
-```
+### How to get started
 
-## Run the app in Kubernetes
+#### To run this application on your host machine (Linux Ubuntu):
 
-The folder k8s-specifications contains the YAML specifications of the Voting App's services.
+Step 1) Clone repo :
+> git clone https://github.com/andycarv03/Animal-Voting-Application.git
 
-Run the following command to create the deployments and services. Note it will create these resources in your current namespace (`default` if you haven't changed it.)
+Step 2) Install Redis server :
+> sudo apt install redis-server \
+> sudo systemctl start redis 
 
-```shell
-kubectl create -f k8s-specifications/
-```
+Test: redis-cli ping
 
-The `vote` web app is then available on port 31000 on each host of the cluster, the `result` web app is available on port 31001.
+Step 3) Install PostgresSQL :
+> sudo -i -u postgres \
+> psql \
+> CREATE DATABASE votes;
 
-To remove them, run:
+Step 4) Running the front-end web app :
+> cd vote/ \
+> pip install -r requirements.txt \
+> python app.py 
 
-```shell
-kubectl delete -f k8s-specifications/
-```
+Access in browser: http://localhost:5000
+
+Step 5) Running the Result service :
+> cd result/  
+> npm install \
+> npm start 
+
+Access in browser: http://localhost:5001
+
+Step 6) Running the worker :
+> cd worker/ \
+> dotnet build \
+> dotnet run 
 
 ## Architecture
 
 ![Architecture diagram](architecture.excalidraw.png)
 
-* A front-end web app in [Python](/vote) which lets you vote between two options
-* A [Redis](https://hub.docker.com/_/redis/) which collects new votes
-* A [.NET](/worker/) worker which consumes votes and stores them in…
-* A [Postgres](https://hub.docker.com/_/postgres/) database backed by a Docker volume
-* A [Node.js](/result) web app which shows the results of the voting in real time
+* A front-end web app in [Python](/vote) which lets you vote between categories of animals.
+* A [Redis](https://hub.docker.com/_/redis/) which collects new votes.
+* A [.NET](/worker/) worker which consumes votes and stores them in.
+* A [Postgres](https://hub.docker.com/_/postgres/) database for persistent storage.
+* A [Node.js](/result) web app which shows the results of the voting in real time.
 
 ## Notes
 
-The voting application only accepts one vote per client browser. It does not register additional votes if a vote has already been submitted from a client.
+This voting application only accepts one vote per client browser. It does not register additional votes if a vote has already been submitted from a client browser.
 
 This isn't an example of a properly architected perfectly designed distributed app... it's just a simple
 example of the various types of pieces and languages you might see (queues, persistent data, etc), and how to
-deal with them in Docker at a basic level.
+deal with them at a basic level.
