@@ -1,0 +1,102 @@
+----------------------------------------
+       Redis Container
+----------------------------------------
+
+docker run \
+--name voting_redis \
+--network voting_network \
+--rm \
+-d \
+redis:6.0.16-alpine
+
+docker stop redis_container
+docker exec -it redis_container redis-cli
+
+Test service is working. Use:-
+  redis-cli ping
+
+-----------------------------------------
+       PostgreDb Container
+-----------------------------------------
+docker run \
+    --name postgres_database \
+    -e POSTGRES_PASSWORD=postgres \
+    --network voting_network \
+    -p 5432:5432 \
+    --rm \
+    -d \
+    postgres
+
+docker exec \
+    -it \
+    postgres_database \
+    psql \
+    -U postgres
+
+psql> CREATE DATABASE votes;
+
+Test: psql -h localhost -p 5432 -U postgres
+
+-----------------------------------------
+       Worker Container
+-----------------------------------------
+docker build -t dotnet_worker .
+
+docker run \
+  --name voting_worker \
+  --network voting_network \
+  --rm \
+  -d \
+  dotnet_worker
+
+docker logs -f voting_worker
+
+-----------------------------------------
+       Vote Container (frontend)
+-----------------------------------------
+docker build -t python_frontend .
+
+docker run \
+  --name voting_frontend \ 
+  -p 5000:5000 \
+  --network voting_network \ 
+  --rm \
+  -d \
+  python_frontend
+
+-----------------------------------------
+    Result Container (view results)
+-----------------------------------------
+docker build -t node_result .
+
+docker run \
+  --name voting_result \
+  -p 5001:5001 \
+  --network voting_network \
+  --rm \
+  -d \
+  node_result
+
+-----------------------------------------
+  Seed-data Container (use for testing)
+-----------------------------------------
+
+docker run \
+  -it \
+  --name voting_test \
+  -e FRONTEND_HOST=voting_frontend \
+  --network voting_network \
+  --rm \
+  testing
+
+-----------------------------------------
+     Healthcheck for Redis & PostgreDb
+-----------------------------------------
+docker build -t tool_healthcheck .
+
+docker run \
+  -it \
+  --name healthcheck \
+  --rm \
+  --network voting_network \
+  tool_healthcheck

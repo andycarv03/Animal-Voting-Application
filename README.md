@@ -26,6 +26,7 @@ healthchecks/ \
     These are scripts used to confirm health status of your postgres db and redis services.
 
 ### How to get started
+You can run this application on your host machine or use docker-compose to spin up the application in containers.
 
 #### To run this application on your host machine (Linux Ubuntu):
 
@@ -61,6 +62,19 @@ Step 6) Running the worker :
 > cd worker/ \
 > dotnet build \
 > dotnet run 
+
+#### To run this application via docker-compose
+git clone https://github.com/andycarv03/Animal-Voting-Application.git
+
+git checkout dev_branch
+
+docker-compose up -d
+
+docker-compose.yaml contains the configuration to spin up all the service containers required to run this application. user has to only access the vote page and result page via localhost:5000/5001 respectively.
+
+Additionally, there are two other service containers that may be used to check the health of redis and postgres db. Test container to send vote data to the database.
+
+Please check docker-compose-commands.txt for more commands.
 
 ## Architecture
 

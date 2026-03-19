@@ -1,0 +1,20 @@
+//To bring up all containers
+docker-compose up -d
+
+//To check redis/postgresdb connectivity with service_check container
+docker-compose run service_check
+
+enter password when prompted
+
+TODO: introduce healthcheck/service_healthy in the docker-compose file 
+
+//To bring down all the containers
+docker-compose down
+
+//Commands to run manual service containers
+
+To send test data :
+docker-compose run seed-data
+
+To check redis and database reachability : 
+docker-compose run service_check

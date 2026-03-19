@@ -12,12 +12,13 @@ namespace Worker
 {
     public class Program
     {
+
         public static int Main(string[] args)
         {
             try
             {
-                var pgsql = OpenDbConnection("Host=localhost;Port=5432;Username=postgres;Password=postgres;");
-                var redisConn = OpenRedisConnection("localhost");
+                var pgsql = OpenDbConnection("Host=voting_database;Port=5432;Username=postgres;Password=postgres;");
+                var redisConn = OpenRedisConnection("voting_redis");
                 var redis = redisConn.GetDatabase();
 
                 // Keep alive is not implemented in Npgsql yet. This workaround was recommended:
@@ -28,13 +29,13 @@ namespace Worker
                 var definition = new { vote = "", voter_id = "" };
                 while (true)
                 {
-                    // Slow down to prevent CPU spike, only query each 100ms
+                    //Slow down to prevent CPU spike, only query each 100ms
                     Thread.Sleep(100);
 
                     // Reconnect redis if down
                     if (redisConn == null || !redisConn.IsConnected) {
                         Console.WriteLine("Reconnecting Redis");
-                        redisConn = OpenRedisConnection("localhost");
+                        redisConn = OpenRedisConnection("voting_redis");
                         redis = redisConn.GetDatabase();
                     }
                     
@@ -54,7 +55,8 @@ namespace Worker
                                 if (!pgsql.State.Equals(System.Data.ConnectionState.Open))
                                 {
                                     Console.WriteLine("Reconnecting DB");
-                                    pgsql = OpenDbConnection("Host=localhost;Port=5432;Username=postgres;Password=postgres;");
+                                    pgsql = OpenDbConnection("Host=voting_database;Port=5432;Username=postgres;Password=postgres;");
+
                                 }
                                 else
                                 { 
@@ -127,8 +129,8 @@ namespace Worker
             {
                 try
                 {
-                    Console.Error.WriteLine("Connecting to redis");
-                    return ConnectionMultiplexer.Connect(ipAddress);
+                    Console.Error.WriteLine($"Connecting to redis at {ipAddress}", ipAddress);
+                    return ConnectionMultiplexer.Connect("voting_redis");
                 }
                 catch (RedisConnectionException)
                 {
