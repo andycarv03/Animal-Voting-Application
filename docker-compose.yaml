@@ -1,0 +1,83 @@
+services:
+  redis:
+    container_name: voting_redis
+    image: redis:6.0.16-alpine
+    networks:
+      - voting_network
+
+  postgres:
+    container_name: voting_database
+    image: postgres
+    env_file:
+      - ./env/postgres.env
+    networks:
+      - voting_network
+
+  worker:
+    container_name: voting_worker
+    build: ./worker
+    depends_on:
+      - redis
+      - postgres
+    networks:
+      - voting_network
+
+  vote:
+    container_name: voting_frontend
+    build: ./vote
+    depends_on:
+      - worker
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000"] 
+      interval: 5s
+      retries: 3
+      timeout: 2s
+    networks:
+      - voting_network
+    ports:
+      - '5000:5000'
+
+  result:
+    container_name: voting_result
+    build: ./result
+    depends_on:
+      vote:
+        condition: service_healthy
+    networks:
+      - voting_network
+    ports:
+      - '5001:5001'
+
+# This container runs a healthcheck script to verify connectivity
+# to Redis and Postgres in the voting_network.
+  service_check:
+    container_name: service_healthcheck
+    build: ./healthchecks
+    depends_on:
+      - redis
+      - postgres
+    networks:
+      - voting_network
+    stdin_open: true
+    tty: true
+    profiles:
+      - manual
+
+# This container runs a ab test tool to send unique browser session votes via POST requests
+# to the worker container.
+  seed-data:
+    container_name: seed-data
+    build: ./seed-data
+    env_file:
+      - ./env/seed-data.env
+    depends_on:
+      - vote
+    networks:
+      - voting_network
+    profiles:
+      - manual
+
+
+networks:
+  voting_network:
+    driver: bridge
