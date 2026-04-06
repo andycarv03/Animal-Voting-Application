@@ -1,0 +1,8 @@
+name: hello-world
+on: workflow_dispatch
+jobs:
+  job-one:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: step-one
+        run: echo "Hello Beautiful world! :) <3"
