@@ -6,3 +6,7 @@ jobs:
     steps:
       - name: step-one
         run: echo "Hello Beautiful world! :) <3"
+      - name: step-two
+        run: | 
+          echo "Running multiple"
+          echo "..commands!"
