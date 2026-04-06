@@ -74,6 +74,19 @@ function collectVotesFromResult(result) {
 app.use(cookieParser());
 app.use(express.urlencoded());
 
+//get stats from db
+app.get('/db/voters_data', async function (req, res) {
+  try {
+    const result = await pool.query('SELECT vote, COUNT(id) AS count FROM votes GROUP BY vote');
+    const votes = collectVotesFromResult(result);
+    res.json(votes);
+  } catch(err) {
+    console.error(err);
+    res.status(500).json({ error: 'Database error' });
+  }
+});
+
+// home route
 app.get('/', function (req, res) {
   const categories = (process.env.VOTE_OPTIONS || "Cats,Dogs,Ducks,Lions")
     .split(",")
