@@ -1,0 +1,42 @@
+name: Slack notification for new repository branches
+'on':
+  create:
+    branches:
+      - feature/*
+jobs:
+  notify:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Notify
+        uses: slackapi/slack-github-action@v3.0.1
+        with:
+          webhook: '${{ secrets.SLACK_WEBHOOK_URL }}'
+          webhook-type: incoming-webhook
+          payload: |
+            {
+              "text": ":tada: A new feature branch was created in repository *${{ github.repository }}*.",
+              "attachments": [
+                {
+                  "color": "#36a64f",
+                  "fields": [
+                    {
+                      "title": "Branch",
+                      "value": "${{ github.ref_name }}",
+                      "short": true
+                    },
+                    {
+                      "title": "Created by",
+                      "value": "${{ github.actor }}",
+                      "short": true
+                    },
+                    {
+                      "title": "Repo",
+                      "value": "<https://github.com/${{ github.repository }}|${{ github.repository }}>",
+                      "short": false
+                    }
+                  ]
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_URL: '${{ secrets.SLACK_WEBHOOK_URL }}'
