@@ -4,9 +4,11 @@ RUN apt-get update && apt install -y iputils-ping && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
-COPY . .
+COPY ./package.json .
 
 RUN npm install
+
+COPY . .
 
 EXPOSE 5001
 

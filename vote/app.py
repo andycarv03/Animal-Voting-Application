@@ -5,11 +5,20 @@ import socket
 import random
 import json
 import logging
+import sys
 
-option_a = os.getenv('OPTION_A', "Cats")
-option_b = os.getenv('OPTION_B', "Dogs")
-option_c = os.getenv('OPTION_C', "Ducks")
-option_d = os.getenv('OPTION_D', "Rabbits")
+category_options = [
+    opt.strip() for opt in os.getenv(
+        "VOTE_OPTIONS"
+        ).split(",")
+        if opt.strip()
+]
+
+if len(category_options) != 4:
+    print("Error: provide at least 4 non-empty categories.")
+    sys.exit(1)
+
+option_a, option_b, option_c, option_d = category_options
 
 app = Flask(__name__)
 
@@ -19,7 +28,12 @@ app.logger.setLevel(logging.INFO)
 
 def get_redis():
     if not hasattr(g, 'redis'):
-        g.redis = Redis(host="voting_redis", db=0, socket_timeout=5)
+        host = os.getenv("REDIS_HOST")
+        if not host:
+            print("Error: REDIS_HOST not set")
+            sys.exit(1)
+
+        g.redis = Redis(host, db=0, socket_timeout=5)
     return g.redis
 
 @app.route("/", methods=['POST','GET'])

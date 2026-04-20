@@ -1,14 +1,14 @@
-# Application to vote for your favorite animals
+# Application to vote for your favorite categories
 
 A simple distributed application. Code reference from : https://github.com/dockersamples/example-voting-app
 
-The original application has been tweaked to add new categories of animals and optimised for faster write operations into the database when processing data from the redis.
+The original application has been tweaked to add new voting categories and optimised for faster write operations into the database when processing data from the redis.
 
-## Getting started
+## Getting Started
 
 This solution uses Python, Node.js, .NET, with Redis for messaging and Postgres for storage.
 
-### Components of this application :
+## Application Components
 
 vote/ \
     This is your frontend application enabling users to cast their votes. Developed using Python's framework Flask.
@@ -25,54 +25,20 @@ seed-data/ \
 healthchecks/ \
     These are scripts used to confirm health status of your postgres db and redis services.
 
-### How to get started
-You can run this application on your host machine or use docker-compose to spin up the application in containers.
+## How to get started ?
+Use docker-compose to spin up the multi-tiered application in containers.
 
-#### To run this application on your host machine (Linux Ubuntu):
-
-Step 1) Clone repo :
-> git clone https://github.com/andycarv03/Animal-Voting-Application.git
-
-Step 2) Install Redis server :
-> sudo apt install redis-server \
-> sudo systemctl start redis 
-
-Test: redis-cli ping
-
-Step 3) Install PostgresSQL :
-> sudo -i -u postgres \
-> psql \
-> CREATE DATABASE votes;
-
-Step 4) Running the front-end web app :
-> cd vote/ \
-> pip install -r requirements.txt \
-> python app.py 
-
-Access in browser: http://localhost:5000
-
-Step 5) Running the Result service :
-> cd result/  
-> npm install \
-> npm start 
-
-Access in browser: http://localhost:5001
-
-Step 6) Running the worker :
-> cd worker/ \
-> dotnet build \
-> dotnet run 
-
-#### To run this application via docker-compose
+### <ins>To run this application via docker-compose </ins>
+```
 git clone https://github.com/andycarv03/Animal-Voting-Application.git
 
 git checkout dev_branch
 
 docker-compose up -d
+```
+docker-compose.yaml contains the configuration to spin up all the service containers required to run this application. User can access the _Voting Page_ and _Result Page_ via _localhost:5000, localhost:5001_ respectively.
 
-docker-compose.yaml contains the configuration to spin up all the service containers required to run this application. user has to only access the vote page and result page via localhost:5000/5001 respectively.
-
-Additionally, there are two other service containers that may be used to check the health of redis and postgres db. Test container to send vote data to the database.
+Additionally, there are two other service containers that may be used to check the health of redis and postgres db. Test container to send simulated vote data to the database.
 
 Please check docker-compose-commands.txt for more commands.
 
@@ -80,7 +46,7 @@ Please check docker-compose-commands.txt for more commands.
 
 ![Architecture diagram](architecture.excalidraw.png)
 
-* A front-end web app in [Python](/vote) which lets you vote between categories of animals.
+* A front-end web app in [Python](/vote) which lets you vote between categories.
 * A [Redis](https://hub.docker.com/_/redis/) which collects new votes.
 * A [.NET](/worker/) worker which consumes votes and stores them in.
 * A [Postgres](https://hub.docker.com/_/postgres/) database for persistent storage.

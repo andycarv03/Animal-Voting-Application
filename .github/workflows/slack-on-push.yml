@@ -1,0 +1,59 @@
+name: Slack notification for new changes pushed to dev_docker
+'on':
+  push:
+    branches:
+      - dev_docker
+
+jobs:
+  notify:
+    runs-on: ubuntu-22.04
+
+    steps:
+      # Step 1: Format commit links
+      - name: Format commit links
+        id: commits
+        run: |
+          JSON='${{ toJson(github.event.commits) }}'
+          TOTAL=$(echo "$JSON" | jq 'length')
+          COMMITS=$(echo "$JSON" | jq -r '
+            .[0:5][] |
+            "- <https://github.com/${{ github.repository }}/commit/\(.id)|\(.id[0:7])>"
+          ')
+          if [ "$TOTAL" -gt 5 ]; then
+            COMMITS="$COMMITS\n...and $((TOTAL - 5)) more commits"
+          fi
+          echo "commits<<EOF" >> $GITHUB_OUTPUT
+          echo "$COMMITS" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+      # Step 2: Send Slack notification
+      - name: Notify push
+        uses: slackapi/slack-github-action@v3.0.1
+        with:
+          webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
+          webhook-type: incoming-webhook
+          payload: |
+            {
+              "text": "🚀 New changes pushed to *${{ github.repository }}*",
+              "attachments": [
+                {
+                  "color": "#36a64f",
+                  "fields": [
+                    {
+                      "title": "Branch",
+                      "value": "${{ github.ref_name }}",
+                      "short": true
+                    },
+                    {
+                      "title": "Author",
+                      "value": "${{ github.actor }}",
+                      "short": true
+                    },
+                    {
+                      "title": "Commits",
+                      "value": "${{ steps.commits.outputs.commits }}",
+                      "short": false
+                    }
+                  ]
+                }
+              ]
+            }

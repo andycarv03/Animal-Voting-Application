@@ -16,6 +16,8 @@ services:
   worker:
     container_name: voting_worker
     build: ./worker
+    env_file:
+      - ./env/redis.env
     depends_on:
       - redis
       - postgres
@@ -25,6 +27,9 @@ services:
   vote:
     container_name: voting_frontend
     build: ./vote
+    env_file:
+      - ./env/category_config.env
+      - ./env/redis.env
     depends_on:
       - worker
     healthcheck:
@@ -40,6 +45,10 @@ services:
   result:
     container_name: voting_result
     build: ./result
+    environment:
+      - NODE_ENV=production
+    env_file:
+      - ./env/category_config.env
     depends_on:
       vote:
         condition: service_healthy

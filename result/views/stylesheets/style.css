@@ -99,19 +99,19 @@ body{
   text-transform: uppercase;
 }
 
-#choice .choice.dogs{
-  color: #00cbca;
-}
-
-#choice .choice.cats{
+#choice .choice.A{
   color: #2196f3;
 }
 
-#choice .choice.ducks{
+#choice .choice.B{
+  color: #00cbca;
+}
+
+#choice .choice.C{
   color: #f3bb21;
 }
 
-#choice .choice.rabbits{
+#choice .choice.D{
   color: #f35221;
 }
 

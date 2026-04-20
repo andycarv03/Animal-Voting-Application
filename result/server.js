@@ -1,3 +1,6 @@
+const fs = require("fs");
+const path = require("path");
+
 var express = require('express'),
     async = require('async'),
     { Pool } = require('pg'),
@@ -70,11 +73,28 @@ function collectVotesFromResult(result) {
 
 app.use(cookieParser());
 app.use(express.urlencoded());
-app.use(express.static(__dirname + '/views'));
 
 app.get('/', function (req, res) {
-  res.sendFile(path.resolve(__dirname + '/views/index.html'));
+  const categories = (process.env.VOTE_OPTIONS || "Cats,Dogs,Ducks,Lions")
+    .split(",")
+    .map(c => c.trim());
+
+  if (categories.length < 4) {
+    return res.status(500).send("Need at least 4 categories");
+  }
+
+ //html = html.replace(/__CATEGORY_A__/g, "TEST_VALUE");
+  let html = fs.readFileSync(path.join(__dirname, "views", "index.html"), "utf8");
+  html = html
+    .replace(/__CATEGORY_A__/g, categories[0])
+    .replace(/__CATEGORY_B__/g, categories[1])
+    .replace(/__CATEGORY_C__/g, categories[2])
+    .replace(/__CATEGORY_D__/g, categories[3]);
+
+  res.send(html);
 });
+
+app.use(express.static(__dirname + '/views'));
 
 server.listen(port, function () {
   var port = server.address().port;

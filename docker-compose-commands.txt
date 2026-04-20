@@ -1,5 +1,10 @@
-//To bring up all containers
+===============================================================
+Production environment setup
+===============================================================
+/To bring up all containers
 docker-compose up -d
+
+note: use `docker-compose -f docker-compose.yaml -f docker-compose.dev.yaml up` to bring for dev setup that would enable live source code changes
 
 //To check redis/postgresdb connectivity with service_check container
 docker-compose run service_check
@@ -18,3 +23,10 @@ docker-compose run seed-data
 
 To check redis and database reachability : 
 docker-compose run service_check
+
+===============================================================
+Dev environment setup (live source coding + hot reload!)
+===============================================================
+docker-compose -f docker-compose.yaml -f docker-compose.dev.yaml up
+docker-compose -f docker-compose.yaml -f docker-compose.dev.yaml down -v
+docker-compose -f docker-compose.yaml -f docker-compose.dev.yaml --build

@@ -18,7 +18,7 @@ namespace Worker
             try
             {
                 var pgsql = OpenDbConnection("Host=voting_database;Port=5432;Username=postgres;Password=postgres;");
-                var redisConn = OpenRedisConnection("voting_redis");
+                var redisConn = OpenRedisConnection(Environment.GetEnvironmentVariable("REDIS_HOST"));
                 var redis = redisConn.GetDatabase();
 
                 // Keep alive is not implemented in Npgsql yet. This workaround was recommended:
@@ -35,7 +35,7 @@ namespace Worker
                     // Reconnect redis if down
                     if (redisConn == null || !redisConn.IsConnected) {
                         Console.WriteLine("Reconnecting Redis");
-                        redisConn = OpenRedisConnection("voting_redis");
+                        redisConn = OpenRedisConnection(Environment.GetEnvironmentVariable("REDIS_HOST"));
                         redis = redisConn.GetDatabase();
                     }
                     
@@ -66,7 +66,7 @@ namespace Worker
                             }
                             catch(Exception ex)
                             {
-                                Console.WriteLine($"Error processing vote: {ex.Message}");
+                                Console.WriteLine($"There's an error processing vote: {ex.Message}");
                             }
                         }
                     }
@@ -130,7 +130,7 @@ namespace Worker
                 try
                 {
                     Console.Error.WriteLine($"Connecting to redis at {ipAddress}", ipAddress);
-                    return ConnectionMultiplexer.Connect("voting_redis");
+                    return ConnectionMultiplexer.Connect(Environment.GetEnvironmentVariable("REDIS_HOST"));
                 }
                 catch (RedisConnectionException)
                 {
