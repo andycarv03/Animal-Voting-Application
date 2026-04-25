@@ -1,32 +1,43 @@
 ===============================================================
-Production environment setup
+               Production environment setup
 ===============================================================
-/To bring up all containers
-docker-compose up -d
 
-note: use `docker-compose -f docker-compose.yaml -f docker-compose.dev.yaml up` to bring for dev setup that would enable live source code changes
-
-//To check redis/postgresdb connectivity with service_check container
-docker-compose run service_check
-
-enter password when prompted
-
-TODO: introduce healthcheck/service_healthy in the docker-compose file 
+//To bring up all containers
+docker compose up -d
 
 //To bring down all the containers
-docker-compose down
+docker compose down
 
 //Commands to run manual service containers
 
 To send test data :
-docker-compose run seed-data
+docker compose run seed-data
 
 To check redis and database reachability : 
-docker-compose run service_check
+docker compose run service_check
+
+enter password when prompted, pwd: postgres
+-----------------------------------------------------------------
+    OR 
+-----------------------------------------------------------------
+Execute via docker scripts
+
+cd docker-scripts/
+
+sudo ./docker_prod.sh {up|down|build|test|health}
 
 ===============================================================
-Dev environment setup (live source coding + hot reload!)
+    Dev Environment Setup (live source coding + hot reload!)
 ===============================================================
-docker-compose -f docker-compose.yaml -f docker-compose.dev.yaml up
-docker-compose -f docker-compose.yaml -f docker-compose.dev.yaml down -v
-docker-compose -f docker-compose.yaml -f docker-compose.dev.yaml --build
+
+docker compose -f docker-compose.yaml -f docker-compose.dev.yaml up
+docker compose -f docker-compose.yaml -f docker-compose.dev.yaml down -v
+docker compose -f docker-compose.yaml -f docker-compose.dev.yaml --build
+----------------------------------------------------------------
+    OR 
+----------------------------------------------------------------
+Execute via docker scripts
+
+cd docker-scripts/
+
+sudo ./docker_dev.sh {up|down|build}
